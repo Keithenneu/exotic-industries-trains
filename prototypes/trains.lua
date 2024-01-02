@@ -143,22 +143,6 @@ data:extend({
 			fuel_category = "chemical",
 			effectivity = 1,
 			fuel_inventory_size = 3,
-			smoke =
-			{
-				{
-					name = "train-smoke",
-					deviation = {0.3, 0.3},
-					frequency = 300,
-					position = {0, -3},
-					--position = {0, 0},
-					starting_frame = 0,
-					starting_frame_deviation = 60,
-					height = 3,
-					height_deviation = 0.5,
-					starting_vertical_speed = 0.2,
-					starting_vertical_speed_deviation = 0.1,
-				}
-			}
 		},		
 		front_light =
 		{
@@ -198,20 +182,39 @@ data:extend({
 		
 		pictures =
 		{
-			priority = "very-low",
-			width = 512,
-			height = 512,
-			direction_count = 128,
-			filenames =
-			{
-				ei_trains_entity_path.."em-locomotive-temp_1.png",
-				ei_trains_entity_path.."em-locomotive-temp_2.png"
-			},
-			line_length = 8,
-			lines_per_file = 8,
-		    shift = {0, -0.5},
-			scale = 0.58,
-			
+			layers = {
+				{
+					priority = "very-low",
+					width = 512,
+					height = 512,
+					direction_count = 128,
+					filenames =
+					{
+						ei_trains_entity_path.."em-locomotive_1.png",
+						ei_trains_entity_path.."em-locomotive_2.png"
+					},
+					line_length = 8,
+					lines_per_file = 8,
+		    		shift = {0, -0.5},
+					scale = 0.58,
+				},
+				{
+					priority = "very-low",
+					width = 512,
+					height = 512,
+					direction_count = 128,
+					draw_as_shadow = true,
+					filenames =
+					{
+						ei_trains_entity_path.."em-locomotive_1_shadow.png",
+						ei_trains_entity_path.."em-locomotive_2_shadow.png"
+					},
+					line_length = 8,
+					lines_per_file = 8,
+		    		shift = {0, -0.5},
+					scale = 0.58,
+				}
+			}
 		},
 		minimap_representation =
 		{
@@ -323,20 +326,39 @@ data:extend({
 		--stand_by_light = rolling_stock_stand_by_light(),
 		pictures =
 		{
-			priority = "very-low",
-			width = 512,
-			height = 512,
-			direction_count = 128,
-			filenames =
-			{
-				ei_trains_entity_path.."em-wagon-temp_1.png",
-				ei_trains_entity_path.."em-wagon-temp_2.png"
-			},
-			line_length = 8,
-			lines_per_file = 8,
-		    shift = {0, -0.5},
-			scale = 0.58,
-			
+			layers = {
+				{
+					priority = "very-low",
+					width = 512,
+					height = 512,
+					direction_count = 128,
+					filenames =
+					{
+						ei_trains_entity_path.."em-wagon_1.png",
+						ei_trains_entity_path.."em-wagon_2.png"
+					},
+					line_length = 8,
+					lines_per_file = 8,
+		    		shift = {0, -0.5},
+					scale = 0.58,
+				},
+				{
+					priority = "very-low",
+					width = 512,
+					height = 512,
+					direction_count = 128,
+					draw_as_shadow = true,
+					filenames =
+					{
+						ei_trains_entity_path.."em-wagon_1_shadow.png",
+						ei_trains_entity_path.."em-wagon_2_shadow.png"
+					},
+					line_length = 8,
+					lines_per_file = 8,
+		    		shift = {0, -0.5},
+					scale = 0.58,
+				}
+			}
 		},
 		minimap_representation = {
 			filename = "__base__/graphics/entity/cargo-wagon/cargo-wagon-minimap-representation.png",
