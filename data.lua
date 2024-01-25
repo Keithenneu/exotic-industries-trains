@@ -10,5 +10,7 @@ require("lib/paths")
 --MAIN CONTENT CODE
 --====================================================================================================
 
--- add loaders
+-- add trains
 require("prototypes/trains")
+-- add charger
+require("prototypes/charger")

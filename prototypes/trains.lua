@@ -21,7 +21,7 @@ data:extend({
         icon = ei_trains_item_path.."em-wagon-temp.png",
         icon_size = 64,
         subgroup = "transport",
-        order = "x2",
+        order = "x3",
         place_result = "ei_em-wagon-temp",
         stack_size = 50
     },
