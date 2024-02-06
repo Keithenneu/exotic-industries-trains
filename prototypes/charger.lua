@@ -101,8 +101,8 @@ data:extend({
         hidden = true,
         icon = ei_trains_item_path.."charging.png",
         icon_size = 64,
-        subgroup = "ei_black-hole",
-        order = "b-a",
+        subgroup = "transport",
+        order = "x4",
     },
     {
         name = "ei_charger",
