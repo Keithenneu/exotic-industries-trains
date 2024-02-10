@@ -4,7 +4,8 @@ if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 --REQUIREMENTS
 --====================================================================================================
 
-local ei_charger = require("scripts/charger")
+ei_charger = require("scripts/charger")
+ei_gui = require("scripts/gui")
 
 ei_informatron = require("scripts/informatron")
 
@@ -47,6 +48,43 @@ end)
 --GUI RELATED
 ------------------------------------------------------------------------------------------------------
 
+-- player created or when loading a save
+--[[
+script.on_event(defines.events.on_player_created, function(e)
+    ei_gui.mark_dirty()
+end)
+
+script.on_event(defines.events.on_player_joined_game, function(e)
+    ei_gui.mark_dirty()
+end)
+
+script.on_event(defines.events.on_player_respawned, function(e)
+    ei_gui.mark_dirty()
+end)
+]]
+
+script.on_configuration_changed(function(e)
+    ei_gui.mark_dirty()
+end)
+
+script.on_init(function(e)
+    ei_gui.mark_dirty()
+end)
+
+script.on_event(defines.events.on_gui_click, function(event)
+    local parent_gui = event.element.tags.parent_gui
+    if not parent_gui then return end
+
+    if parent_gui == "mod_gui" then
+        ei_gui.on_gui_click(event)
+    elseif parent_gui == "ei_mod-gui" then
+        ei_gui.on_gui_click(event)
+    end
+
+
+end)
+
+
 --====================================================================================================
 --HANDLERS
 --====================================================================================================
@@ -55,6 +93,7 @@ function updater()
 
     for i=0, settings.startup["ei_trains_max_updates_per_tick"].value do
         ei_charger.updater()
+        ei_gui.updater()
     end
 
 end

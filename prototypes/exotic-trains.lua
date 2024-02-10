@@ -4,7 +4,7 @@ if not mods["exotic-industries"] then return end
 ei_trains_lib = require("lib/lib-data")
 
 --====================================================================================================
---ROBOT CHANGES
+--TRAIN CHANGES
 --====================================================================================================
 
 -- additional tech prerequisits

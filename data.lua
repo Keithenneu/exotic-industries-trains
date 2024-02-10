@@ -14,3 +14,5 @@ require("lib/paths")
 require("prototypes/trains")
 -- add charger
 require("prototypes/charger")
+-- add sprites
+require("prototypes/sprites")

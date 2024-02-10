@@ -40,13 +40,22 @@ function model.check_global()
         global.ei_emt.chargers = {}
     end
 
+    if not global.ei_emt.gui then
+        global.ei_emt.gui = {}
+    end
+
     if not global.ei_emt.buffs then
         global.ei_emt.buffs = {
-            charger_range = 32,
-            acc_buff = 1,
-            max_speed_buff = 1
+            charger_range = 64, -- max: 512
+            charger_efficiency = 0.1, -- max: 1
+            
+            acc_level = 1, -- max: 5
+            speed_level = 1 -- max: 5
         }
     end
+
+    -- here the power draw for each rail in charger range is calculated
+    -- from ~eff*(acc_level + max_speed_level)
 
 end
 
@@ -73,9 +82,10 @@ function model.update_charger(charger)
 end
 
 
-function model.highlight_range(charger, fade)
+function model.animate_range(charger, fade, player)
 
     fade = fade or false
+    player = {player} or nil
 
     if not model.entity_check(charger) then
         return
@@ -87,10 +97,11 @@ function model.highlight_range(charger, fade)
         return rendering.draw_circle{
             color = {r = 0.1, g = 0.83, b = 0.87},
             radius = radius,
-            width = 16,
+            width = 8,
             filled = false,
             target = charger,
-            surface = charger.surface
+            surface = charger.surface,
+            draw_on_ground = true,
         }
     end
 
@@ -111,26 +122,30 @@ function model.highlight_range(charger, fade)
     -- {r = 0.1, g = 0.83, b = 0.87} -> r = 0.7
 
     local width = 8
+    local width_delta = 0
     local segments = math.floor(radius*32 / width)
+    local animation_time_per_segment = 0.5
 
     for i=1, segments do
         local color = {
             r = 0.1 + (0.7-0.1) * (i/segments),
-            g = 0.83,
-            b = 0.87
+            g = 0.36,
+            b = 0.45,
+            a = 0.0001
         }
 
         rendering.draw_circle{
             color = color,
-            radius = i * width,
-            width = width,
+            radius = i * width / 32,
+            width = width + width_delta,
             filled = false,
             target = charger,
             surface = charger.surface,
-            time_to_live = 60
+            time_to_live = math.floor(1 + animation_time_per_segment * i),
+            draw_on_ground = true,
+            players = player
         }
     end
-
 
 end
 
@@ -161,6 +176,35 @@ function model.unregister_charger(entity)
 
 end
 
+--GUI RELATED
+------------------------------------------------------------------------------------------------------
+
+function model.toggle_range_highlight(player)
+
+    model.check_global()
+
+    local player_index = player.index
+
+    if global.ei_emt.gui[player_index] then
+        
+        -- remove all renderings
+        for key,_ in pairs(global.ei_emt.gui[player_index]) do
+            rendering.destroy(key)
+        end
+
+        global.ei_emt.gui[player_index] = nil
+        return
+    end
+
+    global.ei_emt.gui[player_index] = {}
+
+    for id,charger in pairs(global.ei_emt.chargers) do
+        local render_id = model.animate_range(charger.entity, false, player)
+        if render_id then global.ei_emt.gui[player_index][render_id] = true end
+    end
+
+end
+
 --HANDLERS 
 ------------------------------------------------------------------------------------------------------
 
@@ -179,7 +223,7 @@ function model.on_built_entity(entity)
 
     if entity.name == "ei_charger" then
         model.register_charger(entity)
-        model.highlight_range(entity, true)
+        model.animate_range(entity, true, nil)
     end
 
 end
