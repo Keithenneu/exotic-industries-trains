@@ -7,10 +7,22 @@ data:extend({
         scale = 0.25,
     },
     {
-        name = "ei_emt-range",
+        name = "ei_emt-range-toggle",
         type = "sprite",
         filename = ei_trains_item_path.."charging.png",
         size = 64,
+    },
+    {
+        name = "ei_emt-radius",
+        type = "sprite",
+        filename = ei_trains_entity_path.."radius.png",
+        size = 256,
+    },
+    {
+        name = "ei_emt-radius_big",
+        type = "sprite",
+        filename = ei_trains_entity_path.."radius_big.png",
+        size = 256*4,
     },
 })
 

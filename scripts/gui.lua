@@ -90,7 +90,7 @@ function model.open_mod_gui(player)
         toggle_button_frame.add{
             type = "sprite-button",
             name = "toggle-button",
-            sprite = "ei_emt-range",
+            sprite = "ei_emt-range-toggle",
             tags = {
                 action = "toggle_range_highlight",
                 parent_gui = "ei_mod-gui"
@@ -129,6 +129,13 @@ function model.open_mod_gui(player)
             name = "total-rails-label",
             caption = {"exotic-industries-emt.total-rails", 0},
             tooltip = {"exotic-industries-emt.total-rails-tooltip"},
+        }
+
+        trains_flow.add{
+            type = "label",
+            name = "total-trains-label",
+            caption = {"exotic-industries-emt.total-trains", 0},
+            tooltip = {"exotic-industries-emt.total-trains-tooltip"},
         }
 
     end
@@ -174,6 +181,70 @@ function model.open_mod_gui(player)
 
     end
 
+    model.mark_dirty()
+
+end
+
+
+function model.update_mod_gui(player)
+
+    if not player.gui.left["ei_mod-gui"] then return end
+
+    local data = model.get_data(player.surface)
+
+    local root = player.gui.left["ei_mod-gui"]
+    local chargers_flow = root["main-container"]["chargers-flow"]
+    local trains_flow = root["main-container"]["trains-flow"]
+    local stats_flow = root["main-container"]["stats-flow"]
+
+    -- update stats
+    trains_flow["total-chargers-label"].caption = {"exotic-industries-emt.total-chargers", data.chargers}
+    trains_flow["total-rails-label"].caption = {"exotic-industries-emt.total-rails", data.rails}
+    trains_flow["total-trains-label"].caption = {"exotic-industries-emt.total-trains", data.trains}
+
+    -- update stats
+    stats_flow["charger-efficiency-label"].caption = {"exotic-industries-emt.charger-efficiency", data.charger_efficiency}
+    stats_flow["acc-level-label"].caption = {"exotic-industries-emt.acc-level", data.acc_level}
+    stats_flow["speed-level-label"].caption = {"exotic-industries-emt.speed-level", data.speed_level}
+
+
+end
+
+
+function model.get_data(surface)
+
+    surface = surface or game.get_surface(1)
+    data = {}
+    
+    -- charger info
+    local surface_chargers = {}
+    for charger_id, charger_data in pairs(global.ei_emt.chargers) do
+        if charger_data.surface == surface then
+            table.insert(surface_chargers, charger_data)
+        end
+    end
+    data.chargers = #surface_chargers
+
+    -- train info
+    local trains = {}
+    for train_id, train_data in pairs(global.ei_emt.trains) do
+        if train_data.surface == surface then
+            table.insert(trains, train_data)
+        end
+    end
+    data.trains = #trains
+
+    data.rails = 0
+    for _, charger in ipairs(surface_chargers) do
+        data.rails = data.rails + charger.rail_count
+    end
+
+    data.charger_efficiency = global.ei_emt.buffs.charger_efficiency
+    data.acc_level = global.ei_emt.buffs.acc_level
+    data.speed_level = global.ei_emt.buffs.speed_level
+
+    return data
+
 end
 
 --HANDLERS
@@ -187,6 +258,7 @@ function model.updater()
 
     for _, player in pairs(game.players) do
         model.make_mod_button(player)
+        model.update_mod_gui(player)
     end
 
     global.ei_emt.gui.dirty = false

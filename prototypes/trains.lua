@@ -162,9 +162,9 @@ data:extend({
 		},
 		burner =
 		{
-			fuel_category = "chemical",
+			fuel_category = "ei_emt-fuel",
 			effectivity = 1,
-			fuel_inventory_size = 3,
+			fuel_inventory_size = 1,
 		},		
 		front_light =
 		{
@@ -313,7 +313,7 @@ data:extend({
 		type = "cargo-wagon",
 		name = "ei_em-wagon-temp",
 		icon = ei_trains_item_path.."em-wagon-temp.png",
-        icon_size = 32,
+        icon_size = 64,
 		flags = {"placeable-neutral", "player-creation", "placeable-off-grid", },
 		inventory_size = 20,
 		minable = {
@@ -418,7 +418,7 @@ data:extend({
 		type = "cargo-wagon",
 		name = "ei_em-cargo-wagon",
 		icon = ei_trains_item_path.."em-cargo-wagon.png",
-        icon_size = 32,
+        icon_size = 64,
 		flags = {"placeable-neutral", "player-creation", "placeable-off-grid", },
 		inventory_size = 20,
 		minable = {
@@ -520,3 +520,37 @@ data:extend({
 		vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 },
 	},
 })
+
+--====================================================================================================
+--OTHER
+--====================================================================================================
+
+data:extend({
+	{
+		type = "fuel-category",
+		name = "ei_emt-fuel"
+	},
+})
+
+local foo = {
+	type = "item",
+	name = "ei_emt-fuel_0_0",
+	icon = ei_trains_item_path.."dummy.png",
+	icon_size = 64,
+	stack_size = 1,
+	fuel_category = "ei_emt-fuel",
+	flags = {"hidden"},
+	fuel_value = "1MJ",
+	fuel_acceleration_multiplier = 1,
+	fuel_top_speed_multiplier = 1,
+}
+
+for i=0,20 do
+	for j=0,20 do
+		local bar = table.deepcopy(foo)
+		bar.name = "ei_emt-fuel_"..i.."_"..j
+		bar.fuel_acceleration_multiplier = 1 + (0.1*i)
+		bar.fuel_top_speed_multiplier = 1 + (0.1*j)
+		data:extend({bar})
+	end
+end

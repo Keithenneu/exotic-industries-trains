@@ -88,6 +88,14 @@ data:extend({
                 }
             }
         },
+        radius_visualisation_specification = {
+            sprite = {
+                filename = ei_trains_entity_path.."radius.png",
+                width = 256,
+                height = 256
+            },
+            distance = 96
+        },
     },
     {
         name = "ei_charger:running",
