@@ -171,12 +171,24 @@ function model.open_mod_gui(player)
             caption = {"exotic-industries-emt.acc-level", 0},
             tooltip = {"exotic-industries-emt.acc-level-tooltip"},
         }
+        --[[
+        stats_flow.add{
+            type = "label",
+            name = "acc-total-label",
+            caption = {"exotic-industries-emt.acc-total", 0},
+        }
+        ]]
 
         stats_flow.add{
             type = "label",
             name = "speed-level-label",
             caption = {"exotic-industries-emt.speed-level", 0},
             tooltip = {"exotic-industries-emt.speed-level-tooltip"},
+        }
+        stats_flow.add{
+            type = "label",
+            name = "speed-total-label",
+            caption = {"exotic-industries-emt.speed-total", 0},
         }
 
     end
@@ -206,7 +218,8 @@ function model.update_mod_gui(player)
     stats_flow["charger-efficiency-label"].caption = {"exotic-industries-emt.charger-efficiency", data.charger_efficiency}
     stats_flow["acc-level-label"].caption = {"exotic-industries-emt.acc-level", data.acc_level}
     stats_flow["speed-level-label"].caption = {"exotic-industries-emt.speed-level", data.speed_level}
-
+    stats_flow["speed-total-label"].caption = {"exotic-industries-emt.speed-total", data.speed_total}
+    
 
 end
 
@@ -242,6 +255,10 @@ function model.get_data(surface)
     data.charger_efficiency = global.ei_emt.buffs.charger_efficiency
     data.acc_level = global.ei_emt.buffs.acc_level
     data.speed_level = global.ei_emt.buffs.speed_level
+
+    -- calc total speed
+    local base_speed = 216 -- in km/h
+    data.speed_total = base_speed*1.5*(1+0.1*global.ei_emt.buffs.speed_level)
 
     return data
 

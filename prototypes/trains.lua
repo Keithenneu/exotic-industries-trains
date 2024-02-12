@@ -115,6 +115,88 @@ data:extend({
 })
 ]]
 
+-- techs for acc, speed and eff
+local unit = {
+	count = 100,
+	ingredients = {
+		{"automation-science-pack", 1},
+		{"logistic-science-pack", 1},
+		{"chemical-science-pack", 1},
+		{"utility-science-pack", 1},
+		{"space-science-pack", 1},
+		{"production-science-pack", 1},
+	},
+	time = 60
+}
+
+local eff = {1,5,{["dynamic"] = "eff_"}, unit}
+local speed = {1,20,{["static"] = "em-locomotive-temp", ["dynamic"] = "speed_"}, unit}
+local acc = {1,20,{["dynamic"] = "acc_"}, unit}
+
+local function make_multiple_techs(tab)
+
+	local blank = {
+        name = "ei_advanced-port",
+        type = "technology",
+        icon = "advanced-port.png",
+        icon_size = 256,
+        prerequisites = {"space-science-pack"},
+        effects = {
+            {
+                type = "unlock-recipe",
+                recipe = "ei_advanced-port"
+            },
+        },
+        unit = {},
+        -- age = "quantum-age",
+    }
+
+	for i=tab[1], tab[2] do
+
+		local blank_copy = util.table.deepcopy(blank)
+		local path = tab[3]["dynamic"]..tostring(i)
+
+		blank_copy.name = "ei_"..path
+		blank_copy.localised_name = {"exotic-industries-emt."..tab[3]["dynamic"].."name", i}
+
+		if not tab[3]["static"] then
+			blank_copy.icon = ei_trains_tech_path..path..".png"
+		else
+			blank_copy.icons = {
+				{
+					icon = ei_trains_tech_path..tab[3]["static"]..".png"
+				},
+				{
+					icon = ei_trains_tech_path..path..".png"
+				}
+			}
+		end
+
+		if i > 1 then
+			blank_copy.prerequisites = {"ei_"..tab[3]["dynamic"]..tostring(i-1)}
+		end
+
+		blank_copy.effects = {
+			{
+				type = "nothing",
+				effect_description = {"exotic-industries-emt."..tab[3]["dynamic"].."effect", i}
+			}
+		}
+		blank_copy.unit = table.deepcopy(tab[4])
+		blank_copy.unit.count = (tab[4].count)*(i*10)
+		blank_copy.ignore_tech_cost_multiplier = true
+
+		data:extend({blank_copy})
+		
+	end
+
+end
+
+make_multiple_techs(eff)
+make_multiple_techs(acc)
+make_multiple_techs(speed)
+
+
 --====================================================================================================
 --ENTITIES
 --====================================================================================================
@@ -142,10 +224,10 @@ data:extend({
 		connection_distance = 3,
         joint_distance = 4,		
 
-		weight = 4000,
-		max_speed = 0.625,
-		max_power = "800kW",
-		reversing_power_modifier = 0.6,
+		weight = 1000,
+		max_speed = 1.5,
+		max_power = "1MW",
+		reversing_power_modifier = 1,
 		braking_force = 8,
 		friction_force = 0.003,
 		-- this is a percentage of current speed that will be subtracted
@@ -330,7 +412,7 @@ data:extend({
 		connection_distance = 3, joint_distance = 4,
 		
 		weight = 1000,
-		max_speed = 1.2,
+		max_speed = 10,
 		braking_force = 2,
 		friction_force = 0.0015,
 		air_resistance = 0.002,
@@ -435,7 +517,7 @@ data:extend({
 		connection_distance = 3, joint_distance = 4,
 		
 		weight = 1000,
-		max_speed = 1.2,
+		max_speed = 10,
 		braking_force = 2,
 		friction_force = 0.0015,
 		air_resistance = 0.002,
@@ -540,7 +622,7 @@ local foo = {
 	stack_size = 1,
 	fuel_category = "ei_emt-fuel",
 	flags = {"hidden"},
-	fuel_value = "1MJ",
+	fuel_value = "1GJ",
 	fuel_acceleration_multiplier = 1,
 	fuel_top_speed_multiplier = 1,
 }
