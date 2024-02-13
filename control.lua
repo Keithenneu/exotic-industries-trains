@@ -37,6 +37,11 @@ script.on_event({
 end)
 
 
+script.on_event(defines.events.on_research_finished, function(e)
+    ei_charger.on_research_finished(e)
+end)
+
+
 --UPDATER
 ------------------------------------------------------------------------------------------------------
 

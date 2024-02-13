@@ -130,7 +130,7 @@ local unit = {
 }
 
 local eff = {1,5,{["dynamic"] = "eff_"}, unit}
-local speed = {1,20,{["static"] = "em-locomotive-temp", ["dynamic"] = "speed_"}, unit}
+local speed = {1,20,{["static"] = "em-locomotive-temp", ["dynamic"] = "spd_"}, unit}
 local acc = {1,20,{["dynamic"] = "acc_"}, unit}
 
 local function make_multiple_techs(tab)
@@ -228,10 +228,10 @@ data:extend({
 		max_speed = 1.5,
 		max_power = "1MW",
 		reversing_power_modifier = 1,
-		braking_force = 8,
-		friction_force = 0.003,
+		braking_force = 35,
+		friction_force = 0.01,
 		-- this is a percentage of current speed that will be subtracted
-		air_resistance = 0.003,
+		air_resistance = 0.01,
 		vertical_selection_shift = -0.5,
 		energy_per_hit_point = 5,
 		resistances =
@@ -631,6 +631,7 @@ for i=0,20 do
 	for j=0,20 do
 		local bar = table.deepcopy(foo)
 		bar.name = "ei_emt-fuel_"..i.."_"..j
+		bar.localised_name = {"exotic-industries-emt.fuelname", j, i}
 		bar.fuel_acceleration_multiplier = 1 + (0.1*i)
 		bar.fuel_top_speed_multiplier = 1 + (0.1*j)
 		data:extend({bar})

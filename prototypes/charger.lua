@@ -32,7 +32,8 @@ data:extend({
     },
     {
         name = "ei_charger",
-        type = "assembling-machine",
+        type = "electric-energy-interface",
+        --type = "assembling-machine",
         icon = ei_trains_item_path.."charger.png",
         icon_size = 64,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
@@ -46,15 +47,17 @@ data:extend({
         collision_box = {{-2.4, -2.4}, {2.4, 2.4}},
         selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
         map_color = {r = 1, g = 0.67, b = 0.3},
-        fixed_recipe = "ei_charger:running",
+        -- fixed_recipe = "ei_charger:running",
         crafting_categories = {"ei_charger"},
         crafting_speed = 1,
         energy_source = {
             type = 'electric',
             usage_priority = 'secondary-input',
-            buffer_capacity = "20GJ",
+            buffer_capacity = "1GJ",
+            output_flow_limit = "0W",
         },
-        energy_usage = "5GW",
+        energy_usage = "10MW",
+        --[[
         animation = {
             filename = ei_trains_entity_path.."charger.png",
             size = {512,512},
@@ -88,6 +91,20 @@ data:extend({
                 }
             }
         },
+        ]]
+        animation = {
+            filename = ei_trains_entity_path.."charger_animation.png",
+            size = {512,512},
+            shift = {0, 0},
+            scale = 0.35,
+            line_length = 4,
+            lines_per_file = 4,
+            frame_count = 16,
+            animation_speed = 0.3,
+            run_mode = "backward",
+        },
+        gui_mode = "none",
+        continuous_animation = true,
         radius_visualisation_specification = {
             sprite = {
                 filename = ei_trains_entity_path.."radius.png",
@@ -97,6 +114,7 @@ data:extend({
             distance = 96
         },
     },
+    --[[
     {
         name = "ei_charger:running",
         type = "recipe",
@@ -116,4 +134,5 @@ data:extend({
         name = "ei_charger",
         type = "recipe-category",
     },
+    ]]
 })

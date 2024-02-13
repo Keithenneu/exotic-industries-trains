@@ -17,6 +17,12 @@ model.trains = {
     ["ei_em-locomotive-temp"] = true
 }
 
+model.techs = {
+    ["ei_eff_"] = "eff",
+    ["ei_acc_"] = "acc",
+    ["ei_spd_"] = "spd"
+}
+
 --UTIL
 ------------------------------------------------------------------------------------------------------
 
@@ -40,12 +46,24 @@ function model.check_global()
         global.ei_emt = {}
     end
 
+    -- [charger_id] = {entity, rail_count, surface}
     if not global.ei_emt.chargers then
         global.ei_emt.chargers = {}
     end
 
+    -- [train_id] = {entity, surface}
     if not global.ei_emt.trains then
         global.ei_emt.trains = {}
+    end
+
+    -- trains that are not in update cycle
+    if not global.ei_emt.trains_register then
+        global.ei_emt.trains_register = {}
+    end
+
+    -- list of trains in update cycle, first element gets updated next
+    if not global.ei_emt.trains_que then
+        global.ei_emt.trains_que = {}
     end
 
     if not global.ei_emt.gui then
@@ -71,7 +89,203 @@ end
 --UPDATE
 ------------------------------------------------------------------------------------------------------
 
+function model.apply_buffs(buff, level)
+
+    if buff == "eff" then
+        global.ei_emt.buffs.charger_efficiency = 0.1 * level
+
+        for i,v in pairs(global.ei_emt.chargers) do
+            model.make_rings(v.entity, global.ei_emt.buffs.charger_range, 0.5)
+        end
+    end
+
+    if buff == "acc" then
+        global.ei_emt.buffs.acc_level = level
+
+        for i,v in pairs(global.ei_emt.trains) do
+            model.make_rings(v.entity, 1+level, 0.75)
+        end
+    end
+
+    if buff == "spd" then
+        global.ei_emt.buffs.speed_level = level
+
+        for i,v in pairs(global.ei_emt.trains) do
+            model.make_rings(v.entity, 1+level, 0.75)
+        end
+    end
+end
+
+
+function model.register_que_train(train)
+    table.insert(global.ei_emt.trains_register, train)
+end
+
+
+function model.que_train(train)
+
+    if not model.entity_check(train) then
+        return
+    end
+
+    model.check_global()
+    table.insert(global.ei_emt.trains_que, train)
+
+end
+
+
 function model.update_trains()
+
+    -- update logic: cycle through train updates
+    -- every train has a 1MW acc power, fuel always has 1GJ fuel == 1000s
+    -- enough to update trains after n-ticks
+
+    model.check_global()
+
+    -- first add new registries
+    for i,v in ipairs(global.ei_emt.trains_register) do
+        if model.entity_check(v) then model.que_train(v) end
+    end
+    global.ei_emt.trains_register = {}
+
+    if #global.ei_emt.trains_que == 0 then return end
+
+    -- update and reque first element
+    local train = global.ei_emt.trains_que[1]
+    
+    model.update_train(train)
+    model.que_train(train)
+    table.remove(global.ei_emt.trains_que,1) -- very costly
+
+end
+
+
+function model.update_train(train, visual)
+
+    visual = visual or false
+    if not model.entity_check(train) then
+        return
+    end
+
+    --[[
+    rendering.draw_circle{
+        color = {r = 0.1, g = 0.83, b = 0.87},
+        radius = 1,
+        width = 8,
+        filled = false,
+        target = train,
+        surface = train.surface,
+        time_to_live = 5
+    }
+    ]]
+
+    model.set_burner(train, model.find_charger(train))
+
+end
+
+
+function model.make_rings(entity, radius, animation_time_per_segment)
+
+    local width = 8
+    local segments = math.floor(radius*32 / width)
+
+    for i=1, segments do
+        local color = {
+        r = 0.1 + (0.7-0.1) * (i/segments),
+        g = 0.36,
+        b = 0.45,
+        a = 0.1
+        }
+
+        rendering.draw_circle{
+            color = color,
+            radius = i * width / 32,
+            width = width,
+            filled = false,
+            target = entity,
+            surface = entity.surface,
+            time_to_live = math.floor(1 + animation_time_per_segment * i),
+            draw_on_ground = true
+        }
+    end
+end
+
+
+function model.set_burner(train, state)
+
+    if state == 0 then train.burner.remaining_burning_fuel = 0 return end
+
+    local acc = global.ei_emt.buffs.acc_level or 0
+    local speed = global.ei_emt.buffs.speed_level or 0
+
+    train.burner.currently_burning = game.item_prototypes["ei_emt-fuel_"..tostring(acc).."_"..tostring(speed)]
+    train.burner.remaining_burning_fuel = train.burner.currently_burning.fuel_value*state
+
+end
+
+
+function model.has_enough_energy(charger, train)
+
+    if not model.entity_check(charger) then
+        return false
+    end
+
+    local energy = charger.energy
+    local total_needed = (1 - global.ei_emt.buffs.charger_efficiency) * (1 + global.ei_emt.buffs.acc_level) * (1 + global.ei_emt.buffs.speed_level) *1000*1000 -- in MJ, up to 400 MJ
+
+    --game.print(total_needed)
+
+    local left = 0
+    if train.burner.currently_burning then
+        left = train.burner.remaining_burning_fuel/train.burner.currently_burning.fuel_value
+    end
+
+    total_needed = total_needed*(1 - left)
+    --game.print(total_needed)
+
+    if energy == 0 then return 0 end
+
+    if energy >= total_needed then
+        charger.energy = energy - total_needed
+        --game.print("dec")
+        return 1
+    end
+
+    -- only charge partially
+    charger.energy = 0
+
+
+    
+
+end
+
+
+function model.find_charger(train)
+
+    local t_pos = {["x"] = train.position.x, ["y"] = train.position.y} -- avoid issues with shorthand notation, might be obsolete
+    local surface = train.surface
+    local max_range_sqr = global.ei_emt.buffs.charger_range*global.ei_emt.buffs.charger_range
+    local parts = 0
+
+    for i,v in pairs(global.ei_emt.chargers) do
+        if model.entity_check(v.entity) then
+
+            if v.entity.surface == surface then
+
+                local c_pos = {["x"] = v.entity.position.x, ["y"] = v.entity.position.y}
+                if ((t_pos.x - c_pos.x)*(t_pos.x - c_pos.x) + (t_pos.y - c_pos.y)*(t_pos.y - c_pos.y)) <= max_range_sqr then
+                    
+                    parts = parts + model.has_enough_energy(v.entity, train)
+                    if parts >= 1 then return 1 end
+
+                end
+
+            end
+
+        end
+    end
+
+    return parts
 
 end
 
@@ -171,31 +385,7 @@ function model.animate_range(charger, fade, player)
     -- make circles with 8 pixel width, and color fade
     -- {r = 0.1, g = 0.83, b = 0.87} -> r = 0.7
 
-    local width = 8
-    local width_delta = 0
-    local segments = math.floor(radius*32 / width)
-    local animation_time_per_segment = 0.5
-
-    for i=1, segments do
-        local color = {
-            r = 0.1 + (0.7-0.1) * (i/segments),
-            g = 0.36,
-            b = 0.45,
-            a = 0.1
-        }
-
-        rendering.draw_circle{
-            color = color,
-            radius = i * width / 32,
-            width = width + width_delta,
-            filled = false,
-            target = charger,
-            surface = charger.surface,
-            time_to_live = math.floor(1 + animation_time_per_segment * i),
-            draw_on_ground = true,
-            players = player
-        }
-    end
+    model.make_rings(charger, radius, 0.5)
 
 end
 
@@ -212,6 +402,9 @@ function model.register_charger(entity)
         rail_count = 0,
         surface = entity.surface
     }
+
+    -- set energy to max so that it does not need the full charge
+    entity.energy = entity.prototype.electric_energy_source_prototype.buffer_capacity
 
     model.update_charger(entity, true)
 
@@ -237,6 +430,8 @@ function model.register_train(entity)
         entity = entity,
         surface = entity.surface
     }
+
+    model.register_que_train(entity)
 
 end
 
@@ -300,8 +495,30 @@ end
 
 function model.updater()
 
-    model.check_global()
     model.update_trains()
+
+end
+
+
+function model.on_research_finished(event)
+
+    local name = event.research.name
+
+    -- name starts with "ei_" and ends with a number
+    if not string.match(name, "^ei_") then return end
+    if not string.match(name, "%d$") then return end
+
+    -- first always ei_xxx_ so 7 digits, where 7th is _, cut those
+    local lenght = string.len(name)
+    if lenght < 8 then return end
+
+    -- only last digit is relevant
+    local short_name = string.sub(name, 1, 7)
+    level = tonumber(string.sub(name, 8, 9))
+
+    if model.techs[short_name] then
+        model.apply_buffs(model.techs[short_name], level)
+    end
 
 end
 
