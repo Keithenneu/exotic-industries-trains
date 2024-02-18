@@ -6,23 +6,23 @@ ei_trains_lib = require("lib/lib-data")
 
 data:extend({
     {
-        name = "ei_em-locomotive-temp",
+        name = "ei_em-locomotive",
         type = "item",
-        icon = ei_trains_item_path.."em-locomotive-temp.png",
+        icon = ei_trains_item_path.."em-locomotive.png",
         icon_size = 64,
         subgroup = "transport",
         order = "x1",
-        place_result = "ei_em-locomotive-temp",
+        place_result = "ei_em-locomotive",
         stack_size = 50
     },
 	{
-        name = "ei_em-wagon-temp",
+        name = "ei_em-fluid-wagon",
         type = "item",
-        icon = ei_trains_item_path.."em-wagon-temp.png",
+        icon = ei_trains_item_path.."em-fluid-wagon.png",
         icon_size = 64,
         subgroup = "transport",
         order = "x3",
-        place_result = "ei_em-wagon-temp",
+        place_result = "ei_em-fluid-wagon",
         stack_size = 50
     },
 	{
@@ -43,38 +43,53 @@ data:extend({
 
 data:extend({
     {
-        name = "ei_em-locomotive-temp",
+        name = "ei_em-locomotive",
         type = "recipe",
         category = "crafting",
-        energy_required = 1,
-        ingredients = {},
-        result = "ei_em-locomotive-temp",
+        energy_required = 10,
+        ingredients = {
+			{"locomotive", 1},
+			{"low-density-structure", 25},
+			{"processing-unit", 25},
+			{"electric-engine-unit", 40},
+		},
+        result = "ei_em-locomotive",
         result_count = 1,
-        enabled = true,
+        enabled = false,
         always_show_made_in = true,
-        main_product = "ei_em-locomotive-temp",
+        main_product = "ei_em-locomotive",
     },
 	{
-        name = "ei_em-wagon-temp",
+        name = "ei_em-fluid-wagon",
         type = "recipe",
         category = "crafting",
-        energy_required = 1,
-        ingredients = {},
-        result = "ei_em-wagon-temp",
+        energy_required = 10,
+        ingredients = {
+			{"fluid-wagon", 1},
+			{"low-density-structure", 25},
+			{"processing-unit", 25},
+			{"electric-engine-unit", 40},
+		},
+        result = "ei_em-fluid-wagon",
         result_count = 1,
-        enabled = true,
+        enabled = false,
         always_show_made_in = true,
-        main_product = "ei_em-wagon-temp",
+        main_product = "ei_em-fluid-wagon",
     },
 	{
         name = "ei_em-cargo-wagon",
         type = "recipe",
         category = "crafting",
-        energy_required = 1,
-        ingredients = {},
+        energy_required = 10,
+        ingredients = {
+			{"cargo-wagon", 1},
+			{"low-density-structure", 25},
+			{"processing-unit", 25},
+			{"electric-engine-unit", 40},
+		},
         result = "ei_em-cargo-wagon",
         result_count = 1,
-        enabled = true,
+        enabled = false,
         always_show_made_in = true,
         main_product = "ei_em-cargo-wagon",
     },
@@ -84,22 +99,33 @@ data:extend({
 --TECHS
 --====================================================================================================
 
---[[
 data:extend({
     {
-        name = "ei_advanced-port",
+        name = "ei_em-trains",
         type = "technology",
-        icon = ei_robots_tech_path.."advanced-port.png",
+        icon = ei_trains_tech_path.."em-locomotive.png",
         icon_size = 256,
         prerequisites = {"space-science-pack"},
         effects = {
             {
                 type = "unlock-recipe",
-                recipe = "ei_advanced-port"
+                recipe = "ei_em-locomotive"
             },
+			{
+				type = "unlock-recipe",
+				recipe = "ei_em-fluid-wagon"
+			},
+			{
+				type = "unlock-recipe",
+				recipe = "ei_em-cargo-wagon"
+			},
+			{
+				type = "unlock-recipe",
+				recipe = "ei_charger"
+			},
         },
         unit = {
-            count = 600,
+            count = 1000,
             ingredients = {
                 {"automation-science-pack", 1},
                 {"logistic-science-pack", 1},
@@ -110,10 +136,9 @@ data:extend({
             },
             time = 60
         },
-        age = "quantum-age",
+        -- age = "quantum-age",
     },
 })
-]]
 
 -- techs for acc, speed and eff
 local unit = {
@@ -130,7 +155,7 @@ local unit = {
 }
 
 local eff = {1,5,{["dynamic"] = "eff_"}, unit}
-local speed = {1,20,{["static"] = "em-locomotive-temp", ["dynamic"] = "spd_"}, unit}
+local speed = {1,20,{["static"] = "em-locomotive", ["dynamic"] = "spd_"}, unit}
 local acc = {1,20,{["dynamic"] = "acc_"}, unit}
 
 local function make_multiple_techs(tab)
@@ -140,7 +165,7 @@ local function make_multiple_techs(tab)
         type = "technology",
         icon = "advanced-port.png",
         icon_size = 256,
-        prerequisites = {"space-science-pack"},
+        prerequisites = {"ei_em-trains"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -201,17 +226,25 @@ make_multiple_techs(speed)
 --ENTITIES
 --====================================================================================================
 
+local weight = 500
+local max_speed = 10
+local max_power = "1MW"
+local braking_force = 35
+local braking_force_wagon = 10
+local friction_force = 0.01
+local air_resistance = 0.01
+
 data:extend({
     {
 		type = "locomotive",
-		name = "ei_em-locomotive-temp",
-		icon = ei_trains_item_path.."em-locomotive-temp.png",
+		name = "ei_em-locomotive",
+		icon = ei_trains_item_path.."em-locomotive.png",
         icon_size = 64,
 		flags = {"placeable-neutral", "player-creation", "placeable-off-grid", },
 		minable = 
         {
             mining_time = 1,
-            result = "ei_em-locomotive-temp"
+            result = "ei_em-locomotive"
         },
 		mined_sound = {filename = "__core__/sound/deconstruct-medium.ogg"},
 		max_health = 800,
@@ -224,9 +257,9 @@ data:extend({
 		connection_distance = 3,
         joint_distance = 4,		
 
-		weight = 1000,
-		max_speed = 1.5,
-		max_power = "1MW",
+		weight = weight,
+		max_speed = max_speed,
+		max_power = max_power,
 		reversing_power_modifier = 1,
 		braking_force = 35,
 		friction_force = 0.01,
@@ -393,14 +426,14 @@ data:extend({
 	},
 	{
 		type = "cargo-wagon",
-		name = "ei_em-wagon-temp",
-		icon = ei_trains_item_path.."em-wagon-temp.png",
+		name = "ei_em-fluid-wagon",
+		icon = ei_trains_item_path.."em-fluid-wagon.png",
         icon_size = 64,
 		flags = {"placeable-neutral", "player-creation", "placeable-off-grid", },
 		inventory_size = 20,
 		minable = {
             mining_time = 1,
-            result = "ei_em-wagon-temp"
+            result = "ei_em-fluid-wagon"
         },
 		mined_sound = {filename = "__core__/sound/deconstruct-medium.ogg"},
 		max_health = 600,
@@ -411,11 +444,11 @@ data:extend({
 		selection_box = {{-1.0, -2.7}, {1, 3.3}},		
 		connection_distance = 3, joint_distance = 4,
 		
-		weight = 1000,
-		max_speed = 10,
-		braking_force = 2,
-		friction_force = 0.0015,
-		air_resistance = 0.002,
+		weight = weight,
+		max_speed = max_speed,
+		braking_force = braking_force_wagon,
+		friction_force = friction_force,
+		air_resistance = air_resistance,
 		energy_per_hit_point = 5,    
 		resistances =
 		{
@@ -438,8 +471,8 @@ data:extend({
 					direction_count = 128,
 					filenames =
 					{
-						ei_trains_entity_path.."em-wagon_1.png",
-						ei_trains_entity_path.."em-wagon_2.png"
+						ei_trains_entity_path.."em-cargo-wagon_1.png",
+						ei_trains_entity_path.."em-cargo-wagon_2.png"
 					},
 					line_length = 8,
 					lines_per_file = 8,
@@ -516,11 +549,11 @@ data:extend({
 		selection_box = {{-1.0, -2.7}, {1, 3.3}},		
 		connection_distance = 3, joint_distance = 4,
 		
-		weight = 1000,
-		max_speed = 10,
-		braking_force = 2,
-		friction_force = 0.0015,
-		air_resistance = 0.002,
+		weight = weight,
+		max_speed = max_speed,
+		braking_force = braking_force_wagon,
+		friction_force = friction_force,
+		air_resistance = air_resistance,
 		energy_per_hit_point = 5,    
 		resistances =
 		{
@@ -543,8 +576,8 @@ data:extend({
 					direction_count = 128,
 					filenames =
 					{
-						ei_trains_entity_path.."em-cargo-wagon_1.png",
-						ei_trains_entity_path.."em-cargo-wagon_2.png"
+						ei_trains_entity_path.."em-wagon_1.png",
+						ei_trains_entity_path.."em-wagon_2.png"
 					},
 					line_length = 8,
 					lines_per_file = 8,

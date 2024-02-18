@@ -14,7 +14,7 @@ local model = {}
 --====================================================================================================
 
 model.trains = {
-    ["ei_em-locomotive-temp"] = true
+    ["ei_em-locomotive"] = true
 }
 
 model.techs = {
@@ -91,8 +91,10 @@ end
 
 function model.apply_buffs(buff, level)
 
+    -- level = 20 -- debug
+
     if buff == "eff" then
-        global.ei_emt.buffs.charger_efficiency = 0.1 * level
+        global.ei_emt.buffs.charger_efficiency = 0.1 + 0.1 * level
 
         for i,v in pairs(global.ei_emt.chargers) do
             model.make_rings(v.entity, global.ei_emt.buffs.charger_range, 0.5)
@@ -253,9 +255,7 @@ function model.has_enough_energy(charger, train)
 
     -- only charge partially
     charger.energy = 0
-
-
-    
+    return energy/total_needed
 
 end
 

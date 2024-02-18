@@ -2,7 +2,7 @@ data:extend({
     {
         name = "ei_emt-logo",
         type = "sprite",
-        filename = ei_trains_tech_path.."em-locomotive-temp.png",
+        filename = ei_trains_tech_path.."em-locomotive.png",
         size = 256,
         scale = 0.25,
     },
