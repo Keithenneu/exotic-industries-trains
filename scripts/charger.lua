@@ -233,7 +233,7 @@ function model.has_enough_energy(charger, train)
     end
 
     local energy = charger.energy
-    local total_needed = (1 - global.ei_emt.buffs.charger_efficiency) * (1 + global.ei_emt.buffs.acc_level) * (1 + global.ei_emt.buffs.speed_level) *1000*1000 -- in MJ, up to 400 MJ
+    local total_needed = (1 - global.ei_emt.buffs.charger_efficiency) * (1 + global.ei_emt.buffs.acc_level) * (1 + global.ei_emt.buffs.speed_level) *1000*1000*10 -- in MJ, up to 400 MJ
 
     --game.print(total_needed)
 

@@ -35,6 +35,15 @@ data:extend({
         place_result = "ei_em-cargo-wagon",
         stack_size = 50
     },
+	{
+        name = "ei_em-fielder",
+        type = "item",
+        icon = ei_trains_item_path.."fielder.png",
+        icon_size = 64,
+        subgroup = "intermediate-product",
+        order = "n[rocket-control-unit]-a",
+        stack_size = 10
+    },
 })
 
 --====================================================================================================
@@ -52,6 +61,7 @@ data:extend({
 			{"low-density-structure", 25},
 			{"processing-unit", 25},
 			{"electric-engine-unit", 40},
+			{"ei_em-fielder", 14},
 		},
         result = "ei_em-locomotive",
         result_count = 1,
@@ -69,6 +79,7 @@ data:extend({
 			{"low-density-structure", 25},
 			{"processing-unit", 25},
 			{"electric-engine-unit", 40},
+			{"ei_em-fielder", 8},
 		},
         result = "ei_em-fluid-wagon",
         result_count = 1,
@@ -86,12 +97,30 @@ data:extend({
 			{"low-density-structure", 25},
 			{"processing-unit", 25},
 			{"electric-engine-unit", 40},
+			{"ei_em-fielder", 8},
 		},
         result = "ei_em-cargo-wagon",
         result_count = 1,
         enabled = false,
         always_show_made_in = true,
         main_product = "ei_em-cargo-wagon",
+    },
+	{
+        name = "ei_em-fielder",
+        type = "recipe",
+        category = "crafting",
+        energy_required = 20,
+        ingredients =
+        {
+            {"nuclear-fuel", 2},
+            {"rocket-control-unit", 4},
+            {"energy-shield-mk2-equipment", 1},
+        },
+        result = "ei_em-fielder",
+        result_count = 1,
+        enabled = false,
+        always_show_made_in = true,
+        main_product = "ei_em-fielder",
     },
 })
 
@@ -105,7 +134,7 @@ data:extend({
         type = "technology",
         icon = ei_trains_tech_path.."em-locomotive.png",
         icon_size = 256,
-        prerequisites = {"space-science-pack"},
+        prerequisites = {"space-science-pack", "effect-transmission", "energy-shield-mk2-equipment", "kovarex-enrichment-process", "fluid-wagon"},
         effects = {
             {
                 type = "unlock-recipe",
@@ -123,6 +152,10 @@ data:extend({
 				type = "unlock-recipe",
 				recipe = "ei_charger"
 			},
+			{
+				type = "unlock-recipe",
+				recipe = "ei_em-fielder"
+			},
         },
         unit = {
             count = 1000,
@@ -136,7 +169,7 @@ data:extend({
             },
             time = 60
         },
-        -- age = "quantum-age",
+        age = "quantum-age",
     },
 })
 
@@ -425,12 +458,12 @@ data:extend({
 		sound_minimum_speed = 0.2;
 	},
 	{
-		type = "cargo-wagon",
+		type = "fluid-wagon",
 		name = "ei_em-fluid-wagon",
 		icon = ei_trains_item_path.."em-fluid-wagon.png",
         icon_size = 64,
 		flags = {"placeable-neutral", "player-creation", "placeable-off-grid", },
-		inventory_size = 20,
+		capacity = 50000,
 		minable = {
             mining_time = 1,
             result = "ei_em-fluid-wagon"
@@ -459,6 +492,55 @@ data:extend({
 			{type = "acid",decrease = 10,percent = 20}
 		},
 		vertical_selection_shift = -0.8,
+		gui_front_tank =
+		{
+			filename = "__base__/graphics/entity/fluid-wagon/gui/front-tank.png",
+			width = 64,
+			height = 64,
+			flags = {"icon"}
+		},
+		gui_center_tank =
+		{
+			filename = "__base__/graphics/entity/fluid-wagon/gui/center-tank.png",
+			width = 64,
+			height = 64,
+			flags = {"icon"}
+		},
+		gui_back_tank =
+		{
+			filename = "__base__/graphics/entity/fluid-wagon/gui/back-tank.png",
+			width = 64,
+			height = 64,
+			flags = {"icon"}
+		},
+		gui_connect_front_center_tank =
+		{
+			filename = "__base__/graphics/entity/fluid-wagon/gui/connector-front-center.png",
+			width = 64,
+			height = 64,
+			flags = {"icon"}
+		},
+		gui_connect_center_back_tank =
+		{
+			filename = "__base__/graphics/entity/fluid-wagon/gui/connector-center-back.png",
+			width = 64,
+			height = 64,
+			flags = {"icon"}
+		},
+		gui_front_center_tank_indiciation =
+		{
+			filename = "__base__/graphics/entity/fluid-wagon/gui/1.png",
+			width = 32,
+			height = 32,
+			flags = {"icon"}
+		},
+		gui_center_back_tank_indiciation =
+		{
+			filename = "__base__/graphics/entity/fluid-wagon/gui/2.png",
+			width = 32,
+			height = 32,
+			flags = {"icon"}
+		},
 		--back_light = rolling_stock_back_light(),
 		--stand_by_light = rolling_stock_stand_by_light(),
 		pictures =
@@ -471,8 +553,8 @@ data:extend({
 					direction_count = 128,
 					filenames =
 					{
-						ei_trains_entity_path.."em-cargo-wagon_1.png",
-						ei_trains_entity_path.."em-cargo-wagon_2.png"
+						ei_trains_entity_path.."em-wagon_1.png",
+						ei_trains_entity_path.."em-wagon_2.png"
 					},
 					line_length = 8,
 					lines_per_file = 8,
@@ -497,17 +579,19 @@ data:extend({
 				}
 			}
 		},
-		minimap_representation = {
-			filename = "__base__/graphics/entity/cargo-wagon/cargo-wagon-minimap-representation.png",
-			flags = {"icon"},
-			size = {20, 40},
-			scale = 0.5
+		minimap_representation =
+		{
+		  filename = "__base__/graphics/entity/fluid-wagon/fluid-wagon-minimap-representation.png",
+		  flags = {"icon"},
+		  size = {20, 40},
+		  scale = 0.5
 		},
-		selected_minimap_representation = {
-			filename = "__base__/graphics/entity/cargo-wagon/cargo-wagon-selected-minimap-representation.png",
-			flags = {"icon"},
-			size = {20, 40},
-			scale = 0.5
+		selected_minimap_representation =
+		{
+		  filename = "__base__/graphics/entity/fluid-wagon/fluid-wagon-selected-minimap-representation.png",
+		  flags = {"icon"},
+		  size = {20, 40},
+		  scale = 0.5
 		},
 
 		wheels = standard_train_wheels,
@@ -535,7 +619,7 @@ data:extend({
 		icon = ei_trains_item_path.."em-cargo-wagon.png",
         icon_size = 64,
 		flags = {"placeable-neutral", "player-creation", "placeable-off-grid", },
-		inventory_size = 20,
+		inventory_size = 60,
 		minable = {
             mining_time = 1,
             result = "ei_em-cargo-wagon"
@@ -576,8 +660,8 @@ data:extend({
 					direction_count = 128,
 					filenames =
 					{
-						ei_trains_entity_path.."em-wagon_1.png",
-						ei_trains_entity_path.."em-wagon_2.png"
+						ei_trains_entity_path.."em-cargo-wagon_1.png",
+						ei_trains_entity_path.."em-cargo-wagon_2.png"
 					},
 					line_length = 8,
 					lines_per_file = 8,

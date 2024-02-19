@@ -24,7 +24,7 @@ data:extend({
         {
             {"beacon", 10},
             {"processing-unit", 25},
-            {"energy-shield-mk2-equipment", 4},
+            {"ei_em-fielder", 2},
         },
         result = "ei_charger",
         result_count = 1,
