@@ -221,6 +221,8 @@ function model.set_burner(train, state)
     local speed = global.ei_emt.buffs.speed_level or 0
 
     train.burner.currently_burning = game.item_prototypes["ei_emt-fuel_"..tostring(acc).."_"..tostring(speed)]
+    -- train.burner.remaining_burning_fuel = train.burner.currently_burning.fuel_value*state
+    -- turn this into double, as its may be smthing like 0.534343 -> 0.5
     train.burner.remaining_burning_fuel = train.burner.currently_burning.fuel_value*state
 
 end
@@ -233,7 +235,7 @@ function model.has_enough_energy(charger, train)
     end
 
     local energy = charger.energy
-    local total_needed = (1 - global.ei_emt.buffs.charger_efficiency) * (1 + global.ei_emt.buffs.acc_level) * (1 + global.ei_emt.buffs.speed_level) *1000*1000*10 -- in MJ, up to 400 MJ
+    local total_needed = (1 - global.ei_emt.buffs.charger_efficiency) * (1 + global.ei_emt.buffs.acc_level) * (1 + global.ei_emt.buffs.speed_level) *1000*1000*100 -- in MJ, up to 400 MJ
 
     --game.print(total_needed)
 
@@ -245,17 +247,19 @@ function model.has_enough_energy(charger, train)
     total_needed = total_needed*(1 - left)
     --game.print(total_needed)
 
+    -- TODO only charge when is over 50% full
+
     if energy == 0 then return 0 end
 
     if energy >= total_needed then
-        charger.energy = energy - total_needed
+        charger.energy = charger.energy - total_needed
         --game.print("dec")
         return 1
     end
 
     -- only charge partially
-    charger.energy = 0
-    return energy/total_needed
+    charger.energy = charger.energy/2
+    return (energy/2)/total_needed
 
 end
 

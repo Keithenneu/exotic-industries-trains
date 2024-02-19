@@ -278,7 +278,8 @@ make_multiple_techs(speed)
 --====================================================================================================
 
 local weight = 500
-local max_speed = 10
+local max_speed = 2
+local max_speed_wagon = 10
 local max_power = "1MW"
 local braking_force = 35
 local braking_force_wagon = 10
@@ -496,7 +497,7 @@ data:extend({
 		connection_distance = 3, joint_distance = 4,
 		
 		weight = weight,
-		max_speed = max_speed,
+		max_speed = max_speed_wagon,
 		braking_force = braking_force_wagon,
 		friction_force = friction_force,
 		air_resistance = air_resistance,
@@ -652,7 +653,7 @@ data:extend({
 		connection_distance = 3, joint_distance = 4,
 		
 		weight = weight,
-		max_speed = max_speed,
+		max_speed = max_speed_wagon,
 		braking_force = braking_force_wagon,
 		friction_force = friction_force,
 		air_resistance = air_resistance,

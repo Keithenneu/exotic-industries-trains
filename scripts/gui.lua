@@ -258,7 +258,7 @@ function model.get_data(surface)
 
     -- calc total speed
     local base_speed = 216 -- in km/h
-    data.speed_total = base_speed*1.5*(1+0.1*global.ei_emt.buffs.speed_level)
+    data.speed_total = base_speed*2*(1+0.1*global.ei_emt.buffs.speed_level)
 
     return data
 
