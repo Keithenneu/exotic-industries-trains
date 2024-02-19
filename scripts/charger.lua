@@ -98,6 +98,7 @@ function model.apply_buffs(buff, level)
 
         for i,v in pairs(global.ei_emt.chargers) do
             model.make_rings(v.entity, global.ei_emt.buffs.charger_range, 0.5)
+            model.update_charger(v.entity)
         end
     end
 
@@ -235,7 +236,7 @@ function model.has_enough_energy(charger, train)
     end
 
     local energy = charger.energy
-    local total_needed = (1 - global.ei_emt.buffs.charger_efficiency) * (1 + global.ei_emt.buffs.acc_level) * (1 + global.ei_emt.buffs.speed_level) *1000*1000*100 -- in MJ, up to 400 MJ
+    local total_needed = (1 - global.ei_emt.buffs.charger_efficiency) * (1 + 0.1*global.ei_emt.buffs.acc_level) * (1 + 0.1*global.ei_emt.buffs.speed_level) *1000*1000*100 -- in MJ, up to 400 MJ
 
     --game.print(total_needed)
 
@@ -311,6 +312,9 @@ function model.update_charger_from_rail(rail, sign)
         -- only update rail count
         local charger_id = charger.unit_number
         global.ei_emt.chargers[charger_id].rail_count = global.ei_emt.chargers[charger_id].rail_count + sign
+
+        -- adjust its power usage
+        charger.power_usage = (global.ei_emt.chargers[charger_id].rail_count *250*1000 + 10*1000*1000) * (1-global.ei_emt.buffs.charger_efficiency) / 60  -- 250W per rail + 10MW idle
     end
 
 end
@@ -334,6 +338,8 @@ function model.update_charger(charger)
 
     local charger_id = charger.unit_number
     global.ei_emt.chargers[charger_id].rail_count = rail_count
+
+    charger.power_usage = (rail_count *250*1000 + 10*1000*1000) * (1-global.ei_emt.buffs.charger_efficiency) / 60  -- 250W per rail + 10MW idle
 
 end
 

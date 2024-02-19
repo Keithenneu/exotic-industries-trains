@@ -284,7 +284,7 @@ local max_power = "1MW"
 local braking_force = 35
 local braking_force_wagon = 10
 local friction_force = 0.01
-local air_resistance = 0.01
+local air_resistance = 0.0001
 
 data:extend({
     {
