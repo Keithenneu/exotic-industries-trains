@@ -8,7 +8,7 @@ ei_trains_lib = require("lib/lib-data")
 --====================================================================================================
 
 -- additional tech prerequisits
-data.raw.technology["ei_em-trains"].prerequisites = {"ei_clean-plating", "energy-shield-mk2-equipment", "fluid-wagon"}
+data.raw.technology["ei_em-trains"].prerequisites = {"ei_clean-plating", "energy-shield-mk2-equipment", "fluid-wagon", "ei_copper-beacon"}
 
 -- recipe changes
 data.raw.recipe["ei_em-locomotive"].ingredients = {
@@ -37,4 +37,10 @@ data.raw.recipe["ei_em-fielder"].ingredients = {
     {"energy-shield-mk2-equipment", 1},
     {"ei_eu-magnet", 2},
     {"ei_superior-data", 6},
+}
+
+data.raw.recipe["ei_charger"].ingredients = {
+    {"ei_copper-beacon", 6},
+    {"processing-unit", 25},
+    {"ei_em-fielder", 2},
 }

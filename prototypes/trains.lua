@@ -187,6 +187,24 @@ local unit = {
 	time = 60
 }
 
+if mods["exotic-industries"] then
+
+unit = {
+	count = 100,
+	ingredients = {
+		{"ei_dark-age-tech",1},
+    	{"ei_steam-age-tech",1},
+    	{"ei_electricity-age-tech",1},
+    	{"ei_computer-age-tech",1},
+    	{"ei_advanced-computer-age-tech",1},
+    	{"ei_knowledge-computer-age-tech",1},
+    	{"ei_quantum-age-tech",1},
+	},
+	time = 60
+}
+
+end
+
 local eff = {1,5,{["dynamic"] = "eff_"}, unit}
 local speed = {1,20,{["static"] = "em-locomotive", ["dynamic"] = "spd_"}, unit}
 local acc = {1,20,{["dynamic"] = "acc_"}, unit}
