@@ -231,7 +231,7 @@ function model.get_data(surface)
     
     -- charger info
     local surface_chargers = {}
-    for charger_id, charger_data in pairs(global.ei_emt.chargers) do
+    for charger_id, charger_data in pairs(storage.ei_emt.chargers) do
         if charger_data.surface == surface then
             table.insert(surface_chargers, charger_data)
         end
@@ -240,7 +240,7 @@ function model.get_data(surface)
 
     -- train info
     local trains = {}
-    for train_id, train_data in pairs(global.ei_emt.trains) do
+    for train_id, train_data in pairs(storage.ei_emt.trains) do
         if train_data.surface == surface then
             table.insert(trains, train_data)
         end
@@ -252,13 +252,13 @@ function model.get_data(surface)
         data.rails = data.rails + charger.rail_count
     end
 
-    data.charger_efficiency = global.ei_emt.buffs.charger_efficiency
-    data.acc_level = global.ei_emt.buffs.acc_level
-    data.speed_level = global.ei_emt.buffs.speed_level
+    data.charger_efficiency = storage.ei_emt.buffs.charger_efficiency
+    data.acc_level = storage.ei_emt.buffs.acc_level
+    data.speed_level = storage.ei_emt.buffs.speed_level
 
     -- calc total speed
     local base_speed = 216 -- in km/h
-    data.speed_total = base_speed*2*(1+0.1*global.ei_emt.buffs.speed_level)
+    data.speed_total = base_speed*2*(1+0.1*storage.ei_emt.buffs.speed_level)
 
     return data
 
@@ -269,7 +269,7 @@ end
 
 function model.updater()
 
-    if not global.ei_emt.gui.dirty then
+    if not storage.ei_emt.gui.dirty then
         return
     end
 
@@ -278,7 +278,7 @@ function model.updater()
         model.update_mod_gui(player)
     end
 
-    global.ei_emt.gui.dirty = false
+    storage.ei_emt.gui.dirty = false
 
 end
 
@@ -287,7 +287,7 @@ function model.mark_dirty()
 
     ei_charger.check_global()
 
-    global.ei_emt.gui.dirty = true
+    storage.ei_emt.gui.dirty = true
 
 end
 

@@ -57,14 +57,13 @@ data:extend({
         category = "crafting",
         energy_required = 10,
         ingredients = {
-			{"locomotive", 1},
-			{"low-density-structure", 25},
-			{"processing-unit", 25},
-			{"electric-engine-unit", 40},
-			{"ei_em-fielder", 14},
+			{type="item", name="locomotive", amount=1},
+			{type="item", name="low-density-structure", amount=25},
+			{type="item", name="processing-unit", amount=25},
+			{type="item", name="electric-engine-unit", amount=40},
+			{type="item", name="ei_em-fielder", amount=14},
 		},
-        result = "ei_em-locomotive",
-        result_count = 1,
+        results = {{type="item", name="ei_em-locomotive", amount=1}},
         enabled = false,
         always_show_made_in = true,
         main_product = "ei_em-locomotive",
@@ -75,14 +74,13 @@ data:extend({
         category = "crafting",
         energy_required = 10,
         ingredients = {
-			{"fluid-wagon", 1},
-			{"low-density-structure", 25},
-			{"processing-unit", 25},
-			{"electric-engine-unit", 40},
-			{"ei_em-fielder", 8},
+			{type="item", name="fluid-wagon", amount=1},
+			{type="item", name="low-density-structure", amount=25},
+			{type="item", name="processing-unit", amount=25},
+			{type="item", name="electric-engine-unit", amount=40},
+			{type="item", name="ei_em-fielder", amount=8},
 		},
-        result = "ei_em-fluid-wagon",
-        result_count = 1,
+        results = {{type="item", name="ei_em-fluid-wagon", amount=1}},
         enabled = false,
         always_show_made_in = true,
         main_product = "ei_em-fluid-wagon",
@@ -93,14 +91,13 @@ data:extend({
         category = "crafting",
         energy_required = 10,
         ingredients = {
-			{"cargo-wagon", 1},
-			{"low-density-structure", 25},
-			{"processing-unit", 25},
-			{"electric-engine-unit", 40},
-			{"ei_em-fielder", 8},
+			{type="item", name="cargo-wagon", amount=1},
+			{type="item", name="low-density-structure", amount=25},
+			{type="item", name="processing-unit", amount=25},
+			{type="item", name="electric-engine-unit", amount=40},
+			{type="item", name="ei_em-fielder", amount=8},
 		},
-        result = "ei_em-cargo-wagon",
-        result_count = 1,
+        results = {{type="item", name="ei_em-cargo-wagon", amount=1}},
         enabled = false,
         always_show_made_in = true,
         main_product = "ei_em-cargo-wagon",
@@ -112,12 +109,11 @@ data:extend({
         energy_required = 20,
         ingredients =
         {
-            {"nuclear-fuel", 2},
-            {"rocket-control-unit", 4},
-            {"energy-shield-mk2-equipment", 1},
+            {type="item", name="nuclear-fuel", amount=2},
+            {type="item", name="processing-unit", amount=8},
+            {type="item", name="energy-shield-mk2-equipment", amount=1},
         },
-        result = "ei_em-fielder",
-        result_count = 1,
+        results = {{type="item", name="ei_em-fielder", amount=1}},
         enabled = false,
         always_show_made_in = true,
         main_product = "ei_em-fielder",
@@ -233,17 +229,19 @@ local function make_multiple_techs(tab)
 		local path = tab[3]["dynamic"]..tostring(i)
 
 		blank_copy.name = "ei_"..path
-		blank_copy.localised_name = {"exotic-industries-emt."..tab[3]["dynamic"].."name", i}
+		blank_copy.localised_name = {"exotic-industries-emt."..tab[3]["dynamic"].."name", tostring(i)}
 
 		if not tab[3]["static"] then
 			blank_copy.icon = ei_trains_tech_path..path..".png"
 		else
 			blank_copy.icons = {
 				{
-					icon = ei_trains_tech_path..tab[3]["static"]..".png"
+					icon = ei_trains_tech_path..tab[3]["static"]..".png",
+					icon_size = 256,
 				},
 				{
-					icon = ei_trains_tech_path..path..".png"
+					icon = ei_trains_tech_path..path..".png",
+					icon_size = 256,
 				}
 			}
 		end
@@ -255,7 +253,7 @@ local function make_multiple_techs(tab)
 		blank_copy.effects = {
 			{
 				type = "nothing",
-				effect_description = {"exotic-industries-emt."..tab[3]["dynamic"].."effect", i}
+				effect_description = {"exotic-industries-emt."..tab[3]["dynamic"].."effect", tostring(i)}
 			}
 		}
 		blank_copy.unit = table.deepcopy(tab[4])
@@ -276,6 +274,14 @@ make_multiple_techs(speed)
 --====================================================================================================
 --ENTITIES
 --====================================================================================================
+
+local drive_over_tie = function()
+	return
+	{
+		type = "play-sound",
+		sound = sound_variations("__base__/sound/train-tie", 6, 0.4, { volume_multiplier("main-menu", 2.4), volume_multiplier("driving", 1.3) } )
+	}
+end
 
 local weight = 500
 local max_speed = 2
@@ -327,9 +333,10 @@ data:extend({
 			{type = "explosion",decrease = 15,percent = 30},
 			{type = "acid",decrease = 10,percent = 20}
 		},
-		burner =
+		energy_source =
 		{
-			fuel_category = "ei_emt-fuel",
+			type = "burner",
+			fuel_categories = {"ei_emt-fuel"},
 			effectivity = 1,
 			fuel_inventory_size = 1,
 		},		
@@ -371,50 +378,52 @@ data:extend({
 		
 		pictures =
 		{
-			layers = {
-				{
-					priority = "very-low",
-					width = 512,
-					height = 512,
-					direction_count = 128,
-					filenames =
+			rotated = {
+				layers = {
 					{
-						ei_trains_entity_path.."em-locomotive_1.png",
-						ei_trains_entity_path.."em-locomotive_2.png"
+						priority = "very-low",
+						width = 512,
+						height = 512,
+						direction_count = 128,
+						filenames =
+						{
+							ei_trains_entity_path.."em-locomotive_1.png",
+							ei_trains_entity_path.."em-locomotive_2.png"
+						},
+						line_length = 8,
+						lines_per_file = 8,
+						shift = {0, -0.5},
+						scale = 0.58,
 					},
-					line_length = 8,
-					lines_per_file = 8,
-		    		shift = {0, -0.5},
-					scale = 0.58,
-				},
-				{
-					priority = "very-low",
-					width = 512,
-					height = 512,
-					direction_count = 128,
-					draw_as_shadow = true,
-					filenames =
 					{
-						ei_trains_entity_path.."em-locomotive_1_shadow.png",
-						ei_trains_entity_path.."em-locomotive_2_shadow.png"
-					},
-					line_length = 8,
-					lines_per_file = 8,
-		    		shift = {0, -0.5},
-					scale = 0.58,
+						priority = "very-low",
+						width = 512,
+						height = 512,
+						direction_count = 128,
+						draw_as_shadow = true,
+						filenames =
+						{
+							ei_trains_entity_path.."em-locomotive_1_shadow.png",
+							ei_trains_entity_path.."em-locomotive_2_shadow.png"
+						},
+						line_length = 8,
+						lines_per_file = 8,
+						shift = {0, -0.5},
+						scale = 0.58,
+					}
 				}
 			}
 		},
 		minimap_representation =
 		{
-		  filename = "__base__/graphics/entity/diesel-locomotive/diesel-locomotive-minimap-representation.png",
+		  filename = "__base__/graphics/entity/locomotive/minimap-representation/locomotive-minimap-representation.png",
 		  flags = {"icon"},
 		  size = {20, 40},
 		  scale = 0.5
 		},
 		selected_minimap_representation =
 		{
-		  filename = "__base__/graphics/entity/diesel-locomotive/diesel-locomotive-selected-minimap-representation.png",
+		  filename = "__base__/graphics/entity/locomotive/minimap-representation/locomotive-selected-minimap-representation.png",
 		  flags = {"icon"},
 		  size = {20, 40},
 		  scale = 0.5
@@ -564,50 +573,52 @@ data:extend({
 		--stand_by_light = rolling_stock_stand_by_light(),
 		pictures =
 		{
-			layers = {
-				{
-					priority = "very-low",
-					width = 512,
-					height = 512,
-					direction_count = 128,
-					filenames =
+			rotated = {
+				layers = {
 					{
-						ei_trains_entity_path.."em-wagon_1.png",
-						ei_trains_entity_path.."em-wagon_2.png"
+						priority = "very-low",
+						width = 512,
+						height = 512,
+						direction_count = 128,
+						filenames =
+						{
+							ei_trains_entity_path.."em-wagon_1.png",
+							ei_trains_entity_path.."em-wagon_2.png"
+						},
+						line_length = 8,
+						lines_per_file = 8,
+						shift = {0, -0.5},
+						scale = 0.58,
 					},
-					line_length = 8,
-					lines_per_file = 8,
-		    		shift = {0, -0.5},
-					scale = 0.58,
-				},
-				{
-					priority = "very-low",
-					width = 512,
-					height = 512,
-					direction_count = 128,
-					draw_as_shadow = true,
-					filenames =
 					{
-						ei_trains_entity_path.."em-wagon_1_shadow.png",
-						ei_trains_entity_path.."em-wagon_2_shadow.png"
-					},
-					line_length = 8,
-					lines_per_file = 8,
-		    		shift = {0, -0.5},
-					scale = 0.58,
+						priority = "very-low",
+						width = 512,
+						height = 512,
+						direction_count = 128,
+						draw_as_shadow = true,
+						filenames =
+						{
+							ei_trains_entity_path.."em-wagon_1_shadow.png",
+							ei_trains_entity_path.."em-wagon_2_shadow.png"
+						},
+						line_length = 8,
+						lines_per_file = 8,
+						shift = {0, -0.5},
+						scale = 0.58,
+					}
 				}
 			}
 		},
 		minimap_representation =
 		{
-		  filename = "__base__/graphics/entity/fluid-wagon/fluid-wagon-minimap-representation.png",
+		  filename = "__base__/graphics/entity/fluid-wagon/minimap-representation/fluid-wagon-minimap-representation.png",
 		  flags = {"icon"},
 		  size = {20, 40},
 		  scale = 0.5
 		},
 		selected_minimap_representation =
 		{
-		  filename = "__base__/graphics/entity/fluid-wagon/fluid-wagon-selected-minimap-representation.png",
+		  filename = "__base__/graphics/entity/fluid-wagon/minimap-representation/fluid-wagon-selected-minimap-representation.png",
 		  flags = {"icon"},
 		  size = {20, 40},
 		  scale = 0.5
@@ -671,48 +682,50 @@ data:extend({
 		--stand_by_light = rolling_stock_stand_by_light(),
 		pictures =
 		{
-			layers = {
-				{
-					priority = "very-low",
-					width = 512,
-					height = 512,
-					direction_count = 128,
-					filenames =
+			rotated = {
+				layers = {
 					{
-						ei_trains_entity_path.."em-cargo-wagon_1.png",
-						ei_trains_entity_path.."em-cargo-wagon_2.png"
+						priority = "very-low",
+						width = 512,
+						height = 512,
+						direction_count = 128,
+						filenames =
+						{
+							ei_trains_entity_path.."em-cargo-wagon_1.png",
+							ei_trains_entity_path.."em-cargo-wagon_2.png"
+						},
+						line_length = 8,
+						lines_per_file = 8,
+						shift = {0, -0.5},
+						scale = 0.58,
 					},
-					line_length = 8,
-					lines_per_file = 8,
-		    		shift = {0, -0.5},
-					scale = 0.58,
-				},
-				{
-					priority = "very-low",
-					width = 512,
-					height = 512,
-					direction_count = 128,
-					draw_as_shadow = true,
-					filenames =
 					{
-						ei_trains_entity_path.."em-wagon_1_shadow.png",
-						ei_trains_entity_path.."em-wagon_2_shadow.png"
-					},
-					line_length = 8,
-					lines_per_file = 8,
-		    		shift = {0, -0.5},
-					scale = 0.58,
+						priority = "very-low",
+						width = 512,
+						height = 512,
+						direction_count = 128,
+						draw_as_shadow = true,
+						filenames =
+						{
+							ei_trains_entity_path.."em-wagon_1_shadow.png",
+							ei_trains_entity_path.."em-wagon_2_shadow.png"
+						},
+						line_length = 8,
+						lines_per_file = 8,
+						shift = {0, -0.5},
+						scale = 0.58,
+					}
 				}
 			}
 		},
 		minimap_representation = {
-			filename = "__base__/graphics/entity/cargo-wagon/cargo-wagon-minimap-representation.png",
+			filename = "__base__/graphics/entity/cargo-wagon/minimap-representation/cargo-wagon-minimap-representation.png",
 			flags = {"icon"},
 			size = {20, 40},
 			scale = 0.5
 		},
 		selected_minimap_representation = {
-			filename = "__base__/graphics/entity/cargo-wagon/cargo-wagon-selected-minimap-representation.png",
+			filename = "__base__/graphics/entity/cargo-wagon/minimap-representation/cargo-wagon-selected-minimap-representation.png",
 			flags = {"icon"},
 			size = {20, 40},
 			scale = 0.5
@@ -757,7 +770,7 @@ local foo = {
 	icon_size = 64,
 	stack_size = 1,
 	fuel_category = "ei_emt-fuel",
-	flags = {"hidden"},
+	hidden = true,
 	fuel_value = "1GJ",
 	fuel_acceleration_multiplier = 1,
 	fuel_top_speed_multiplier = 1,
@@ -767,7 +780,7 @@ for i=0,20 do
 	for j=0,20 do
 		local bar = table.deepcopy(foo)
 		bar.name = "ei_emt-fuel_"..i.."_"..j
-		bar.localised_name = {"exotic-industries-emt.fuelname", j, i}
+		bar.localised_name = {"exotic-industries-emt.fuelname", tostring(j), tostring(i)}
 		bar.fuel_acceleration_multiplier = 1 + (0.1*i)
 		bar.fuel_top_speed_multiplier = 1 + (0.1*j)
 		data:extend({bar})

@@ -22,12 +22,11 @@ data:extend({
         energy_required = 20,
         ingredients =
         {
-            {"beacon", 10},
-            {"processing-unit", 25},
-            {"ei_em-fielder", 2},
+            {type="item", name="beacon", amount=10},
+            {type="item", name="processing-unit", amount=25},
+            {type="item", name="ei_em-fielder", amount=2},
         },
-        result = "ei_charger",
-        result_count = 1,
+        results = {{type="item", name="ei_charger", amount=1}},
         enabled = false,
         always_show_made_in = true,
         main_product = "ei_charger",

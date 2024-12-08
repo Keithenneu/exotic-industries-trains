@@ -42,36 +42,36 @@ end
 
 function model.check_global()
 
-    if not global.ei_emt then
-        global.ei_emt = {}
+    if not storage.ei_emt then
+        storage.ei_emt = {}
     end
 
     -- [charger_id] = {entity, rail_count, surface}
-    if not global.ei_emt.chargers then
-        global.ei_emt.chargers = {}
+    if not storage.ei_emt.chargers then
+        storage.ei_emt.chargers = {}
     end
 
     -- [train_id] = {entity, surface}
-    if not global.ei_emt.trains then
-        global.ei_emt.trains = {}
+    if not storage.ei_emt.trains then
+        storage.ei_emt.trains = {}
     end
 
     -- trains that are not in update cycle
-    if not global.ei_emt.trains_register then
-        global.ei_emt.trains_register = {}
+    if not storage.ei_emt.trains_register then
+        storage.ei_emt.trains_register = {}
     end
 
     -- list of trains in update cycle, first element gets updated next
-    if not global.ei_emt.trains_que then
-        global.ei_emt.trains_que = {}
+    if not storage.ei_emt.trains_que then
+        storage.ei_emt.trains_que = {}
     end
 
-    if not global.ei_emt.gui then
-        global.ei_emt.gui = {}
+    if not storage.ei_emt.gui then
+        storage.ei_emt.gui = {}
     end
 
-    if not global.ei_emt.buffs then
-        global.ei_emt.buffs = {
+    if not storage.ei_emt.buffs then
+        storage.ei_emt.buffs = {
             charger_range = 96, -- max: 512
             charger_efficiency = 0.1, -- max: 1
             
@@ -94,26 +94,26 @@ function model.apply_buffs(buff, level)
     -- level = 20 -- debug
 
     if buff == "eff" then
-        global.ei_emt.buffs.charger_efficiency = 0.1 + 0.1 * level
+        storage.ei_emt.buffs.charger_efficiency = 0.1 + 0.1 * level
 
-        for i,v in pairs(global.ei_emt.chargers) do
-            model.make_rings(v.entity, global.ei_emt.buffs.charger_range, 0.5)
+        for i,v in pairs(storage.ei_emt.chargers) do
+            model.make_rings(v.entity, storage.ei_emt.buffs.charger_range, 0.5)
             model.update_charger(v.entity)
         end
     end
 
     if buff == "acc" then
-        global.ei_emt.buffs.acc_level = level
+        storage.ei_emt.buffs.acc_level = level
 
-        for i,v in pairs(global.ei_emt.trains) do
+        for i,v in pairs(storage.ei_emt.trains) do
             model.make_rings(v.entity, 1+level, 0.75)
         end
     end
 
     if buff == "spd" then
-        global.ei_emt.buffs.speed_level = level
+        storage.ei_emt.buffs.speed_level = level
 
-        for i,v in pairs(global.ei_emt.trains) do
+        for i,v in pairs(storage.ei_emt.trains) do
             model.make_rings(v.entity, 1+level, 0.75)
         end
     end
@@ -121,7 +121,7 @@ end
 
 
 function model.register_que_train(train)
-    table.insert(global.ei_emt.trains_register, train)
+    table.insert(storage.ei_emt.trains_register, train)
 end
 
 
@@ -132,7 +132,7 @@ function model.que_train(train)
     end
 
     model.check_global()
-    table.insert(global.ei_emt.trains_que, train)
+    table.insert(storage.ei_emt.trains_que, train)
 
 end
 
@@ -146,19 +146,19 @@ function model.update_trains()
     model.check_global()
 
     -- first add new registries
-    for i,v in ipairs(global.ei_emt.trains_register) do
+    for i,v in ipairs(storage.ei_emt.trains_register) do
         if model.entity_check(v) then model.que_train(v) end
     end
-    global.ei_emt.trains_register = {}
+    storage.ei_emt.trains_register = {}
 
-    if #global.ei_emt.trains_que == 0 then return end
+    if #storage.ei_emt.trains_que == 0 then return end
 
     -- update and reque first element
-    local train = global.ei_emt.trains_que[1]
+    local train = storage.ei_emt.trains_que[1]
     
     model.update_train(train)
     model.que_train(train)
-    table.remove(global.ei_emt.trains_que,1) -- very costly
+    table.remove(storage.ei_emt.trains_que,1) -- very costly
 
 end
 
@@ -218,12 +218,13 @@ function model.set_burner(train, state)
 
     if state == 0 then train.burner.remaining_burning_fuel = 0 return end
 
-    local acc = global.ei_emt.buffs.acc_level or 0
-    local speed = global.ei_emt.buffs.speed_level or 0
+    local acc = storage.ei_emt.buffs.acc_level or 0
+    local speed = storage.ei_emt.buffs.speed_level or 0
 
-    train.burner.currently_burning = game.item_prototypes["ei_emt-fuel_"..tostring(acc).."_"..tostring(speed)]
+    train.burner.currently_burning = prototypes.item["ei_emt-fuel_"..tostring(acc).."_"..tostring(speed)]
     -- train.burner.remaining_burning_fuel = train.burner.currently_burning.fuel_value*state
     -- turn this into double, as its may be smthing like 0.534343 -> 0.5
+    -- error: ttempt to perform arithmetic on field 'fuel_value' (a nil value)
     train.burner.remaining_burning_fuel = train.burner.currently_burning.fuel_value*state
 
 end
@@ -236,7 +237,7 @@ function model.has_enough_energy(charger, train)
     end
 
     local energy = charger.energy
-    local total_needed = (1 - global.ei_emt.buffs.charger_efficiency) * (1 + 0.1*global.ei_emt.buffs.acc_level) * (1 + 0.1*global.ei_emt.buffs.speed_level) *1000*1000*100 -- in MJ, up to 400 MJ
+    local total_needed = (1 - storage.ei_emt.buffs.charger_efficiency) * (1 + 0.1*storage.ei_emt.buffs.acc_level) * (1 + 0.1*storage.ei_emt.buffs.speed_level) *1000*1000*100 -- in MJ, up to 400 MJ
 
     --game.print(total_needed)
 
@@ -269,10 +270,10 @@ function model.find_charger(train)
 
     local t_pos = {["x"] = train.position.x, ["y"] = train.position.y} -- avoid issues with shorthand notation, might be obsolete
     local surface = train.surface
-    local max_range_sqr = global.ei_emt.buffs.charger_range*global.ei_emt.buffs.charger_range
+    local max_range_sqr = storage.ei_emt.buffs.charger_range*storage.ei_emt.buffs.charger_range
     local parts = 0
 
-    for i,v in pairs(global.ei_emt.chargers) do
+    for i,v in pairs(storage.ei_emt.chargers) do
         if model.entity_check(v.entity) then
 
             if v.entity.surface == surface then
@@ -301,7 +302,7 @@ function model.update_charger_from_rail(rail, sign)
         return
     end
 
-    local radius = global.ei_emt.buffs.charger_range
+    local radius = storage.ei_emt.buffs.charger_range
     local chargers = rail.surface.find_entities_filtered({
         position = rail.position,
         radius = radius,
@@ -311,10 +312,10 @@ function model.update_charger_from_rail(rail, sign)
     for _, charger in ipairs(chargers) do
         -- only update rail count
         local charger_id = charger.unit_number
-        global.ei_emt.chargers[charger_id].rail_count = global.ei_emt.chargers[charger_id].rail_count + sign
+        storage.ei_emt.chargers[charger_id].rail_count = storage.ei_emt.chargers[charger_id].rail_count + sign
 
         -- adjust its power usage
-        charger.power_usage = (global.ei_emt.chargers[charger_id].rail_count *250*1000 + 10*1000*1000) * (1-global.ei_emt.buffs.charger_efficiency) / 60  -- 250W per rail + 10MW idle
+        charger.power_usage = (storage.ei_emt.chargers[charger_id].rail_count *250*1000 + 10*1000*1000) * (1-storage.ei_emt.buffs.charger_efficiency) / 60  -- 250W per rail + 10MW idle
     end
 
 end
@@ -329,7 +330,7 @@ function model.update_charger(charger)
         model.unregister_charger(charger) return
     end
 
-    local radius = global.ei_emt.buffs.charger_range
+    local radius = storage.ei_emt.buffs.charger_range
     local rail_count = charger.surface.count_entities_filtered({
         position = charger.position,
         radius = radius,
@@ -337,9 +338,9 @@ function model.update_charger(charger)
     })
 
     local charger_id = charger.unit_number
-    global.ei_emt.chargers[charger_id].rail_count = rail_count
+    storage.ei_emt.chargers[charger_id].rail_count = rail_count
 
-    charger.power_usage = (rail_count *250*1000 + 10*1000*1000) * (1-global.ei_emt.buffs.charger_efficiency) / 60  -- 250W per rail + 10MW idle
+    charger.power_usage = (rail_count *250*1000 + 10*1000*1000) * (1-storage.ei_emt.buffs.charger_efficiency) / 60  -- 250W per rail + 10MW idle
 
 end
 
@@ -353,7 +354,7 @@ function model.animate_range(charger, fade, player)
         return
     end
 
-    local radius = global.ei_emt.buffs.charger_range
+    local radius = storage.ei_emt.buffs.charger_range
 
     if not fade then
         --[[
@@ -407,7 +408,7 @@ function model.register_charger(entity)
     model.check_global()
 
     local charger_id = entity.unit_number
-    global.ei_emt.chargers[charger_id] = {
+    storage.ei_emt.chargers[charger_id] = {
         entity = entity,
         rail_count = 0,
         surface = entity.surface
@@ -426,7 +427,7 @@ function model.unregister_charger(entity)
     model.check_global()
 
     local charger_id = entity.unit_number
-    global.ei_emt.chargers[charger_id] = nil
+    storage.ei_emt.chargers[charger_id] = nil
 
 end
 
@@ -436,7 +437,7 @@ function model.register_train(entity)
     model.check_global()
 
     local train_id = entity.unit_number
-    global.ei_emt.trains[train_id] = {
+    storage.ei_emt.trains[train_id] = {
         entity = entity,
         surface = entity.surface
     }
@@ -451,7 +452,7 @@ function model.unregister_train(entity)
     model.check_global()
 
     local train_id = entity.unit_number
-    global.ei_emt.trains[train_id] = nil
+    storage.ei_emt.trains[train_id] = nil
 
 end
 
@@ -464,7 +465,7 @@ function model.fix_toggle_range()
     for _, player in pairs(game.players) do
         
         local player_index = player.index
-        if global.ei_emt.gui[player_index] then
+        if storage.ei_emt.gui[player_index] then
             model.toggle_range_highlight(player) -- remove all
             model.toggle_range_highlight(player) -- draw new
         end
@@ -480,22 +481,22 @@ function model.toggle_range_highlight(player)
 
     local player_index = player.index
 
-    if global.ei_emt.gui[player_index] then
+    if storage.ei_emt.gui[player_index] then
         
         -- remove all renderings
-        for key,_ in pairs(global.ei_emt.gui[player_index]) do
+        for key,_ in pairs(storage.ei_emt.gui[player_index]) do
             rendering.destroy(key)
         end
 
-        global.ei_emt.gui[player_index] = nil
+        storage.ei_emt.gui[player_index] = nil
         return
     end
 
-    global.ei_emt.gui[player_index] = {}
+    storage.ei_emt.gui[player_index] = {}
 
-    for id,charger in pairs(global.ei_emt.chargers) do
+    for id,charger in pairs(storage.ei_emt.chargers) do
         local render_id = model.animate_range(charger.entity, false, player)
-        if render_id then global.ei_emt.gui[player_index][render_id] = true end
+        if render_id then storage.ei_emt.gui[player_index][render_id] = true end
     end
 
 end

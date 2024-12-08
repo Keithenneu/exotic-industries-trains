@@ -12,35 +12,35 @@ data.raw.technology["ei_em-trains"].prerequisites = {"ei_clean-plating", "energy
 
 -- recipe changes
 data.raw.recipe["ei_em-locomotive"].ingredients = {
-    {"locomotive", 1},
-	{"ei_carbon-structure", 25},
-	{"ei_clean-plating", 25},
-	{"ei_advanced-motor", 20},
-	{"ei_em-fielder", 14},
+    {type="item", name="locomotive", amount=1},
+	{type="item", name="ei_carbon-structure", amount=25},
+	{type="item", name="ei_clean-plating", amount=25},
+	{type="item", name="ei_advanced-motor", amount=20},
+	{type="item", name="ei_em-fielder", amount=14},
 }
 
 data.raw.recipe["ei_em-cargo-wagon"].ingredients = {
-    {"cargo-wagon", 1},
-	{"ei_carbon-structure", 15},
-	{"ei_clean-plating", 15},
-	{"ei_em-fielder", 8},
+    {type="item", name="cargo-wagon", amount=1},
+	{type="item", name="ei_carbon-structure", amount=15},
+	{type="item", name="ei_clean-plating", amount=15},
+	{type="item", name="ei_em-fielder", amount=8},
 }
 
 data.raw.recipe["ei_em-fluid-wagon"].ingredients = {
-    {"fluid-wagon", 1},
-	{"ei_carbon-structure", 15},
-	{"ei_clean-plating", 15},
-	{"ei_em-fielder", 8},
+    {type="item", name="fluid-wagon", amount=1},
+	{type="item", name="ei_carbon-structure", amount=15},
+	{type="item", name="ei_clean-plating", amount=15},
+	{type="item", name="ei_em-fielder", amount=8},
 }
 
 data.raw.recipe["ei_em-fielder"].ingredients = {
-    {"energy-shield-mk2-equipment", 1},
-    {"ei_eu-magnet", 2},
-    {"ei_superior-data", 6},
+    {type="item", name="energy-shield-mk2-equipment", amount=1},
+    {type="item", name="ei_eu-magnet", amount=2},
+    {type="item", name="ei_superior-data", amount=6},
 }
 
 data.raw.recipe["ei_charger"].ingredients = {
-    {"ei_copper-beacon", 6},
-    {"processing-unit", 25},
-    {"ei_em-fielder", 2},
+    {type="item", name="ei_copper-beacon", amount=6},
+    {type="item", name="processing-unit", amount=25},
+    {type="item", name="ei_em-fielder", amount=2},
 }
