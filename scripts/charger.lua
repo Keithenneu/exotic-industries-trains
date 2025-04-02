@@ -224,7 +224,6 @@ function model.set_burner(train, state)
     train.burner.currently_burning = prototypes.item["ei_emt-fuel_"..tostring(acc).."_"..tostring(speed)]
     -- train.burner.remaining_burning_fuel = train.burner.currently_burning.fuel_value*state
     -- turn this into double, as its may be smthing like 0.534343 -> 0.5
-    -- error: ttempt to perform arithmetic on field 'fuel_value' (a nil value)
     train.burner.remaining_burning_fuel = train.burner.currently_burning.name.fuel_value*state
 
 end
