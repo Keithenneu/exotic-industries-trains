@@ -224,8 +224,7 @@ function model.set_burner(train, state)
     train.burner.currently_burning = prototypes.item["ei_emt-fuel_"..tostring(acc).."_"..tostring(speed)]
     -- train.burner.remaining_burning_fuel = train.burner.currently_burning.fuel_value*state
     -- turn this into double, as its may be smthing like 0.534343 -> 0.5
-    -- error: ttempt to perform arithmetic on field 'fuel_value' (a nil value)
-    train.burner.remaining_burning_fuel = train.burner.currently_burning.fuel_value*state
+    train.burner.remaining_burning_fuel = train.burner.currently_burning.name.fuel_value*state
 
 end
 
@@ -243,7 +242,7 @@ function model.has_enough_energy(charger, train)
 
     local left = 0
     if train.burner.currently_burning then
-        left = train.burner.remaining_burning_fuel/train.burner.currently_burning.fuel_value
+        left = train.burner.remaining_burning_fuel/train.burner.currently_burning.name.fuel_value
     end
 
     total_needed = total_needed*(1 - left)
@@ -485,7 +484,7 @@ function model.toggle_range_highlight(player)
         
         -- remove all renderings
         for key,_ in pairs(storage.ei_emt.gui[player_index]) do
-            rendering.destroy(key)
+            key.destroy()
         end
 
         storage.ei_emt.gui[player_index] = nil
